@@ -1,4 +1,4 @@
-include <config.scad>
+include <../conf/config.scad>
 
 gx16_r = 8;
 gx16_h = 15.5;

@@ -5,11 +5,11 @@
 *     OpenScad Parametric Box
 ********************************************************/
 
-use <hd44780.scad>
-use <gx16.scad>
+use <vitamins/hd44780.scad>
+use <vitamins/gx16.scad>
 
 
-include <config.scad>
+include <conf/config.scad>
 
 ////////////////// - Box parameters - //////////////////////
 
@@ -23,32 +23,6 @@ BShell=1;// [0:No, 1:Yes]
 TShell=1;// [0:No, 1:Yes]
 //- Front text
 Text=1;// [0:No, 1:Yes]
-// - Text you want
-  txt = "Solder Station";           
-// - Font size  
-  TxtSize = 5;                 
-// - Font  
-  Font="Ubuntu"; 
-  Font_style="Standard"; // [Standard, Bold, Italic, etc] See Fontlist for more
-  font_layers=3;
-// - Length  
-  Length = 80;       
-// - Width
-  Width = 140;                     
-// - Height  
-  Height = 75;                                       
-// - Round corner diameter  
-  Round = 7;//[0.1:12] 
-// - Round smoothness  
-  Resolution = 50;//[1:100] 
-// - Thickness  
-  Thick = 2;//[1:5]
-// - Marging
-  m = 0.5;
-  
-  layer_height = 0.2;
-  
-  top_slots = 5;
   
 /* [Hidden] */
 // - Shell color  
@@ -60,13 +34,13 @@ Text=1;// [0:No, 1:Yes]
 
 /////////// - Generic rounded box - //////////
 
-module RoundBox($a=Length, $b=Width, $c=Height){// Cube bords arrondis
-                    $fn=Resolution;            
-                    translate([0,Round,Round]){  
+module RoundBox($a=main_box_length, $b=main_box_width, $c=main_box_height){// Cube bords arrondis
+                    $fn=main_box_resolution;            
+                    translate([0,main_box_roundness,main_box_roundness]){  
                     minkowski (){                                              
-                        cube ([$a-(Length/2),$b-(2*Round),$c-(2*Round)], center = false);
+                        cube ([$a-(main_box_length/2),$b-(2*main_box_roundness),$c-(2*main_box_roundness)], center = false);
                         rotate([0,90,0]){    
-                        cylinder(r=Round,h=Length/2, center = false);
+                        cylinder(r=main_box_roundness,h=main_box_length/2, center = false);
                             } 
                         }
                     }
@@ -74,9 +48,8 @@ module RoundBox($a=Length, $b=Width, $c=Height){// Cube bords arrondis
 
       
 ////////////////////////////////// - Module Shell - //////////////////////////////////         
-
 module Shell( top = 0){//Coque - Shell  
-    Thick = Thick*2;  
+    main_box_thickness = main_box_thickness*2;  
     difference(){    
         difference(){//sides decoration
             union(){    
@@ -86,68 +59,68 @@ module Shell( top = 0){//Coque - Shell
                             union() {//union               
                             difference(){//Coque    
                                 RoundBox();
-                                translate([Thick/2,Thick/2,Thick/2]){     
-                                        RoundBox($a=Length-Thick, $b=Width-Thick, $c=Height-Thick);
+                                translate([main_box_thickness/2,main_box_thickness/2,main_box_thickness/2]){     
+                                        RoundBox($a=main_box_length-main_box_thickness, $b=main_box_width-main_box_thickness, $c=main_box_height-main_box_thickness);
                                         }
                                         }//Fin diff Coque                            
                                 difference(){//largeur Rails        
-                                     translate([Thick+m,Thick/2,Thick/2]){// Rails
-                                          RoundBox($a=Length-((2*Thick)+(2*m)), $b=Width-Thick, $c=Height-(Thick*2));
+                                     translate([main_box_thickness+m,main_box_thickness/2,main_box_thickness/2]){// Rails
+                                          RoundBox($a=main_box_length-((2*main_box_thickness)+(2*m)), $b=main_box_width-main_box_thickness, $c=main_box_height-(main_box_thickness*2));
                                                           }//fin Rails
-                                     translate([((Thick+m/2)*1.55),Thick/2,Thick/2]){
-                                          RoundBox($a=Length-((Thick*3)+2*m), $b=Width-Thick, $c=Height-Thick);
+                                     translate([((main_box_thickness+m/2)*1.55),main_box_thickness/2,main_box_thickness/2]){
+                                          RoundBox($a=main_box_length-((main_box_thickness*3)+2*m), $b=main_box_width-main_box_thickness, $c=main_box_height-main_box_thickness);
                                                     }           
                                                 }//Fin largeur Rails
                                     }//Fin union                                   
-                               translate([-Thick,-Thick,Height/2]){// Cube à soustraire
-                                    cube ([Length+100, Width+100, Height], center=false);
+                               translate([-main_box_thickness,-main_box_thickness,main_box_height/2]){// Cube à soustraire
+                                    cube ([main_box_length+100, main_box_width+100, main_box_height], center=false);
                                             }                                            
                                       }//fin soustraction cube median - End Median cube slicer
-                               translate([-Thick/2,Thick,Thick]){// Forme de soustraction centrale 
-                                    RoundBox($a=Length+Thick, $b=Width-Thick*2, $c=Height-Thick);       
+                               translate([-main_box_thickness/2,main_box_thickness,main_box_thickness]){// Forme de soustraction centrale 
+                                    RoundBox($a=main_box_length+main_box_thickness, $b=main_box_width-main_box_thickness*2, $c=main_box_height-main_box_thickness);       
                                     }                          
                                 }                                          
 
 
                 difference(){// Fixation box legs
                     union(){
-                        translate([3.9*Thick,Thick,Height/2]){
+                        translate([3.9*main_box_thickness,main_box_thickness,main_box_height/2]){
                             rotate([90,0,0]){
                                     $fn=6;
-                                    cylinder(d=16,Thick/2);
+                                    cylinder(d=16,main_box_thickness/2);
                                     }   
                             }
                             
-                       translate([Length-3.9*Thick,Thick,Height/2]){
+                       translate([main_box_length-3.9*main_box_thickness,main_box_thickness,main_box_height/2]){
                             rotate([90,0,0]){
                                     $fn=6;
-                                    cylinder(d=16,Thick/2);
+                                    cylinder(d=16,main_box_thickness/2);
                                     }   
                             }
 
                         }
-                            translate([4,Thick+Round,Height/2-57]){   
+                            translate([4,main_box_thickness+main_box_roundness,main_box_height/2-57]){   
                              rotate([45,0,0]){
-                                   cube([Length,40,40]);    
+                                   cube([main_box_length,40,40]);    
                                   }
                            }
-                           translate([0,-(Thick*1.46),Height/2]){
-                                cube([Length,Thick*2,10]);
+                           translate([0,-(main_box_thickness*1.46),main_box_height/2]){
+                                cube([main_box_length,main_box_thickness*2,10]);
                            }
                     } //Fin fixation box legs
             }
 
         union(){// outbox sides decorations //todo: make slots for just one half
-            slot = top_slots * top;
-            for(i=[0:Thick + slot/2:Length/4]){
+            slot = main_box_top_slots * top;
+            for(i=[0:main_box_thickness + slot/2:main_box_length/4]){
                 for(j=[0,-1]){
-                    x = (abs(10 - Length * -j)) + i + 2*i*j;
-                    translate([x ,Width-0.6 - slot,0]){
-                        cube([3,Thick + slot,Height/4]);
+                    x = (abs(10 - main_box_length * -j)) + i + 2*i*j;
+                    translate([x ,main_box_width-0.6 - slot,0]){
+                        cube([3,main_box_thickness + slot,main_box_height/4]);
                     }  
                     
-                    translate([x ,-Thick+0.6,0]){
-                        cube([3,Thick + slot,Height/4]);
+                    translate([x ,-main_box_thickness+0.6,0]){
+                        cube([3,main_box_thickness + slot,main_box_height/4]);
                     } 
                  }   
              }// fin de for
@@ -157,22 +130,22 @@ module Shell( top = 0){//Coque - Shell
 
             union(){ //sides holes
                 $fn=50;
-                translate([2.6*Thick+5,20,Height/2+4]){
+                translate([2.6*main_box_thickness+5,20,main_box_height/2+4]){
                     rotate([90,0,0]){
                     cylinder(d=2,20);
                     }
                 }
-                translate([Length-(3.9*Thick),20,Height/2+4]){
+                translate([main_box_length-(3.9*main_box_thickness),20,main_box_height/2+4]){
                     rotate([90,0,0]){
                     cylinder(d=2,20);
                     }
                 }
-                translate([2.6*Thick+5,Width+5,Height/2-4]){
+                translate([2.6*main_box_thickness+5,main_box_width+5,main_box_height/2-4]){
                     rotate([90,0,0]){
                     cylinder(d=2,20);
                     }
                 }
-                translate([Length-(3.9*Thick),Width+5,Height/2-4]){
+                translate([main_box_length-(3.9*main_box_thickness),main_box_width+5,main_box_height/2-4]){
                     rotate([90,0,0]){
                     cylinder(d=2,20);
                     }
@@ -190,12 +163,12 @@ module Shell( top = 0){//Coque - Shell
                             
 module Panels(){//Panels
     color(Color2){
-        translate([Thick+m,m/2,m/2]){
+        translate([main_box_thickness+m,m/2,m/2]){
              difference(){
-                  translate([0,Thick,Thick]){ 
-                     RoundBox(Length,Width-((Thick*2)+m),Height-((Thick*2)+m));}
-                  translate([Thick,-5,0]){
-                     cube([Length,Width+10,Height]);}
+                  translate([0,main_box_thickness,main_box_thickness]){ 
+                     RoundBox(main_box_length,main_box_width-((main_box_thickness*2)+m),main_box_height-((main_box_thickness*2)+m));}
+                  translate([main_box_thickness,-5,0]){
+                     cube([main_box_length,main_box_width+10,main_box_height]);}
                      }
                 }
          }
@@ -211,24 +184,24 @@ module box(){
             Panels();
             
             //cables
-            rotate([0,-90,0]) translate([(Height)/4,(Width)/1.1,-5]) cylinder(r=3, h=5);
+            rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/1.1,-5]) cylinder(r=3, h=5);
             
             //power plug
-            rotate([0,-90,0]) translate([(Height - power_plug_height)/2,(Width - power_plug_width)/10,-5]) cube([power_plug_height, power_plug_width, 3]);
+            rotate([0,-90,0]) translate([(main_box_height - power_plug_height)/2,(main_box_width - power_plug_width)/10,-5]) cube([power_plug_height, power_plug_width, 3]);
         }
     }
     if(FPanel==1)
     //Front Panel
     rotate([0,0,180]){
-        translate([-Length-m/2,-Width,0]){   
+        translate([-main_box_length-m/2,-main_box_width,0]){   
             difference(){
                 Panels();
                 //display
-                rotate([0,-90,0]) translate([(Height-display_height)/2,(Width-display_width)/1.25,-6]) cube([display_height + m, display_width + m, 5]);
+                rotate([0,-90,0]) translate([(main_box_height-display_height)/2,(main_box_width-display_width)/1.25,-6]) cube([display_height + m, display_width + m, 5]);
                 //plug
-                rotate([0,-90,0]) translate([(Height)/4,(Width)/10,-5]) cylinder(r=8 + m, h=5);
+                rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/10,-5]) cylinder(r=8 + m, h=5);
                 //button
-                rotate([0,-90,0]) translate([(Height)/1.5,(Width)/8,-5]) cylinder(r=3 + m, h=5);
+                rotate([0,-90,0]) translate([(main_box_height)/1.5,(main_box_width)/8,-5]) cylinder(r=3 + m, h=5);
             }
            }
        }
@@ -236,10 +209,10 @@ module box(){
     if(Text==1)
     // Front text
     color(Color1){     
-         translate([Length-(Thick),Thick*4,(Height-(Thick*4+(TxtSize/2)))]){// x,y,z
+         translate([main_box_length-(main_box_thickness),main_box_thickness*4,(main_box_height-(main_box_thickness*4+(main_box_font_size/2)))]){// x,y,z
               rotate([90,0,90]){
-                  linear_extrude(height = layer_height * font_layers){
-                  text(txt, font = str(Font, ":style=",  Font_style), size = TxtSize,  valign ="center", halign ="left");
+                  linear_extrude(height = layer_height * main_box_font_layers){
+                  text(main_box_text, font = str(main_box_font, ":style=",  main_box_font_style), size = main_box_font_size,  valign ="center", halign ="left");
                             }
                      }
              }
@@ -256,7 +229,7 @@ module box(){
     if(TShell==1)
     // Top Shell
     color( Color1,1){
-        translate([0,Width,Height+0.2]){
+        translate([0,main_box_width,main_box_height+0.2]){
             rotate([0,180,180]){
                     Shell(1);
                     }
@@ -267,10 +240,10 @@ module box(){
 module box_assembly(){
     box();
     rotate([0,0,180]){
-        translate([-Length-m/2,-Width,0]){ 
-                rotate([0,-90,0]) translate([(Height-display_pcb_height)/1.93,(Width-display_pcb_width)/1.215,-display_depth - 1])display(); //TODO: fix position
-                color("Silver") rotate([0,-90,0]) translate([(Height)/4,(Width)/10,-10]) gx16();
-                color("White") rotate([0,-90,0]) translate([(Height)/1.5,(Width)/8,-5]) cylinder(r=5 + m, h=10, $fn=32);
+        translate([-main_box_length-m/2,-main_box_width,0]){ 
+                rotate([0,-90,0]) translate([(main_box_height-display_pcb_height)/1.93,(main_box_width-display_pcb_width)/1.215,-display_depth - 1])display(); //TODO: fix position
+                color("Silver") rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/10,-10]) gx16();
+                color("White") rotate([0,-90,0]) translate([(main_box_height)/1.5,(main_box_width)/8,-5]) cylinder(r=5 + m, h=10, $fn=32);
         }
     }
     

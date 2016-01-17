@@ -1,4 +1,4 @@
-include <config.scad>
+include <../conf/config.scad>
 
 lcd_width = 76;
 lcd_height = 26;
