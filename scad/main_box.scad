@@ -30,6 +30,7 @@ Text=1;// [0:No, 1:Yes]
 // - Font  
   Font="Ubuntu"; 
   Font_style="Standard"; // [Standard, Bold, Italic, etc] See Fontlist for more
+  font_layers=3;
 // - Length  
   Length = 80;       
 // - Width
@@ -44,6 +45,10 @@ Text=1;// [0:No, 1:Yes]
   Thick = 2;//[1:5]
 // - Marging
   m = 0.5;
+  
+  layer_height = 0.2;
+  
+  top_slots = 5;
   
 /* [Hidden] */
 // - Shell color  
@@ -70,7 +75,7 @@ module RoundBox($a=Length, $b=Width, $c=Height){// Cube bords arrondis
       
 ////////////////////////////////// - Module Shell - //////////////////////////////////         
 
-module Shell(){//Coque - Shell  
+module Shell( top = 0){//Coque - Shell  
     Thick = Thick*2;  
     difference(){    
         difference(){//sides decoration
@@ -132,28 +137,22 @@ module Shell(){//Coque - Shell
                     } //Fin fixation box legs
             }
 
-        union(){// outbox sides decorations
-            for(i=[0:Thick:Length/4]){
-
-                translate([(Length-10) - i,-Thick+0.6,0]){
-                    cube([3,Thick,Height/4]);
-                    }
+        union(){// outbox sides decorations //todo: make slots for just one half
+            slot = top_slots * top;
+            for(i=[0:Thick + slot/2:Length/4]){
+                for(j=[0,-1]){
+                    x = (abs(10 - Length * -j)) + i + 2*i*j;
+                    translate([x ,Width-0.6 - slot,0]){
+                        cube([3,Thick + slot,Height/4]);
+                    }  
                     
-                translate([10+i,-Thick+0.6,0]){
-                    cube([3,Thick,Height/4]);
-                    }    
-                    
-                translate([10+i,Width-0.6,0]){
-                    cube([3,Thick,Height/4]);
+                    translate([x ,-Thick+0.6,0]){
+                        cube([3,Thick + slot,Height/4]);
                     } 
-                    
-                translate([(Length-10) - i,Width-0.6,0]){
-                    cube([3,Thick,Height/4]);
-                    }    
-                
-                    }// fin de for
-                }//fin union decoration
-            }//fin difference decoration
+                 }   
+             }// fin de for
+        }//fin union decoration
+     }//fin difference decoration
 
 
             union(){ //sides holes
@@ -239,7 +238,7 @@ module box(){
     color(Color1){     
          translate([Length-(Thick),Thick*4,(Height-(Thick*4+(TxtSize/2)))]){// x,y,z
               rotate([90,0,90]){
-                  linear_extrude(height = 0.25){
+                  linear_extrude(height = layer_height * font_layers){
                   text(txt, font = str(Font, ":style=",  Font_style), size = TxtSize,  valign ="center", halign ="left");
                             }
                      }
@@ -259,7 +258,7 @@ module box(){
     color( Color1,1){
         translate([0,Width,Height+0.2]){
             rotate([0,180,180]){
-                    Shell();
+                    Shell(1);
                     }
             }
     }

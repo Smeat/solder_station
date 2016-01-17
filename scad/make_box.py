@@ -23,5 +23,6 @@ for option in variables:
 	default_args.append("-D" + option + "=0")
 
 for option in variables:
-	openscad(*(default_args + ["-D" + option + "=1"] + [scad_file] + ["-o" + path + "/stl/" + option + ".stl"]))
+	extra_args = [];
+	openscad(*(default_args + ["-D" + option + "=1"] + [scad_file] + ["-o" + path + "/stl/" + option + ".stl"] + extra_args))
 	#openscad(default_args, "-D" + option + "=1", path + "/main_box.scad", "-o " + path + "/" + option + ".stl")
