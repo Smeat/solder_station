@@ -307,29 +307,25 @@ $EndComp
 $Comp
 L R R6
 U 1 1 566B006C
-P 9650 5650
-F 0 "R6" V 9730 5650 50  0000 C CNN
-F 1 "100Ω" V 9650 5650 50  0000 C CNN
-F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 9580 5650 30  0001 C CNN
-F 3 "" H 9650 5650 30  0000 C CNN
-	1    9650 5650
+P 9700 5650
+F 0 "R6" V 9780 5650 50  0000 C CNN
+F 1 "100Ω" V 9700 5650 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 9630 5650 30  0001 C CNN
+F 3 "" H 9700 5650 30  0000 C CNN
+	1    9700 5650
 	1    0    0    -1  
 $EndComp
 $Comp
 L R R7
 U 1 1 566B0289
-P 9650 5200
-F 0 "R7" V 9730 5200 50  0000 C CNN
-F 1 "50kΩ" V 9650 5200 50  0000 C CNN
-F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 9580 5200 30  0001 C CNN
-F 3 "" H 9650 5200 30  0000 C CNN
-	1    9650 5200
+P 9700 5200
+F 0 "R7" V 9780 5200 50  0000 C CNN
+F 1 "50kΩ" V 9700 5200 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 9630 5200 30  0001 C CNN
+F 3 "" H 9700 5200 30  0000 C CNN
+	1    9700 5200
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	9650 5050 9650 5000
-Wire Wire Line
-	8650 5350 9650 5350
 Wire Wire Line
 	9050 5400 9050 6000
 $Comp
@@ -666,13 +662,9 @@ AVcc
 Wire Wire Line
 	2100 1300 2100 1600
 Wire Wire Line
-	8650 5350 8650 5100
+	8650 5100 8650 5450
 Wire Wire Line
-	9650 5350 9650 5500
-Wire Wire Line
-	9650 5800 9650 5950
-Wire Wire Line
-	9650 5950 9050 5950
+	9050 5950 9700 5950
 Connection ~ 9050 5950
 $Comp
 L CONN_01X02 P2
@@ -781,7 +773,7 @@ F 3 "" H 4400 1000 60  0000 C CNN
 $EndComp
 Wire Wire Line
 	4150 1000 4400 1000
-Text Notes 6650 1250 0    60   ~ 0
+Text Notes 6900 1000 0    60   ~ 0
 Power Input
 Text GLabel 5050 2950 2    60   Input ~ 0
 Button_push
@@ -845,13 +837,13 @@ F 3 "" H 5750 1500 60  0000 C CNN
 	1    5750 1500
 	1    0    0    -1  
 $EndComp
-Text GLabel 5250 1600 0    60   Input ~ 0
+Text GLabel 5250 1600 0    60   Output ~ 0
 Rotary_A
 Wire Wire Line
 	5250 1600 5500 1600
-Text GLabel 5300 1800 0    60   Input ~ 0
+Text GLabel 5300 1800 0    60   Output ~ 0
 Rotary_B
-Text GLabel 6250 1650 2    60   Input ~ 0
+Text GLabel 6250 1650 2    60   UnSpc ~ 0
 Button_push
 Wire Wire Line
 	6250 1650 6100 1650
@@ -941,7 +933,7 @@ Text GLabel 6250 3800 2    60   Input ~ 0
 Button_standby
 Text GLabel 5100 3700 2    60   Input ~ 0
 Button_connected
-Text GLabel 11050 1250 1    60   Input ~ 0
+Text GLabel 11050 1250 1    60   Output ~ 0
 Button_connected
 Wire Wire Line
 	10550 1750 10550 1350
@@ -953,7 +945,7 @@ Wire Wire Line
 	10750 900  10750 1750
 Wire Wire Line
 	10750 1450 11000 1450
-Text GLabel 9950 1150 0    60   Input ~ 0
+Text GLabel 9950 1150 0    60   Output ~ 0
 Button_standby
 Wire Wire Line
 	10450 1750 10450 1150
@@ -1160,4 +1152,14 @@ Wire Wire Line
 	6150 3800 6250 3800
 Text Notes 5400 4000 0    60   ~ 0
 Extern am Addon
+Wire Wire Line
+	8650 5450 9700 5450
+Wire Wire Line
+	9700 5950 9700 5800
+Wire Wire Line
+	9700 5500 9700 5350
+Wire Wire Line
+	9700 5050 9700 5000
+Connection ~ 9700 5000
+Connection ~ 9700 5450
 $EndSCHEMATC
