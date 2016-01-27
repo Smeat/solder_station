@@ -191,23 +191,23 @@ $EndComp
 $Comp
 L GND #PWR06
 U 1 1 566AFDB2
-P 8300 3500
-F 0 "#PWR06" H 8300 3250 50  0001 C CNN
-F 1 "GND" H 8300 3350 50  0000 C CNN
-F 2 "" H 8300 3500 60  0000 C CNN
-F 3 "" H 8300 3500 60  0000 C CNN
-	1    8300 3500
+P 8300 3950
+F 0 "#PWR06" H 8300 3700 50  0001 C CNN
+F 1 "GND" H 8300 3800 50  0000 C CNN
+F 2 "" H 8300 3950 60  0000 C CNN
+F 3 "" H 8300 3950 60  0000 C CNN
+	1    8300 3950
 	1    0    0    -1  
 $EndComp
 $Comp
 L R R3
 U 1 1 566AFE19
-P 8100 3400
-F 0 "R3" V 8180 3400 50  0000 C CNN
-F 1 "10kΩ" V 8100 3400 50  0000 C CNN
-F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 8030 3400 30  0001 C CNN
-F 3 "" H 8100 3400 30  0000 C CNN
-	1    8100 3400
+P 8100 3700
+F 0 "R3" V 8180 3700 50  0000 C CNN
+F 1 "10kΩ" V 8100 3700 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 8030 3700 30  0001 C CNN
+F 3 "" H 8100 3700 30  0000 C CNN
+	1    8100 3700
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -237,7 +237,7 @@ L R R5
 U 1 1 566B0C9A
 P 8300 1950
 F 0 "R5" V 8380 1950 50  0000 C CNN
-F 1 "10kΩ" V 8300 1950 50  0000 C CNN
+F 1 "1kΩ" V 8300 1950 50  0000 C CNN
 F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 8230 1950 30  0001 C CNN
 F 3 "" H 8300 1950 30  0000 C CNN
 	1    8300 1950
@@ -525,7 +525,7 @@ U 1 1 566DD427
 P 7600 1200
 F 0 "P2" H 7600 1350 50  0000 C CNN
 F 1 "CONN_01X02" V 7700 1200 50  0000 C CNN
-F 2 "Terminal_Blocks:TerminalBlock_Pheonix_MKDS1.5-2pol" H 7600 1200 60  0001 C CNN
+F 2 "Terminal_Blocks:TerminalBlock_Pheonix_PT-3.5mm_2pol" H 7600 1200 60  0001 C CNN
 F 3 "" H 7600 1200 60  0000 C CNN
 	1    7600 1200
 	0    1    1    0   
@@ -670,7 +670,7 @@ U 1 1 56A3CBD5
 P 10500 700
 F 0 "P1" H 10500 1000 50  0000 C CNN
 F 1 "CONN_01X05" V 10600 700 50  0000 C CNN
-F 2 "Terminal_Blocks:TerminalBlock_Pheonix_MPT-2.54mm_5pol" H 10500 700 60  0001 C CNN
+F 2 "Terminal_Blocks:TerminalBlock_Pheonix_PT-3.5mm_5pol" H 10500 700 60  0001 C CNN
 F 3 "" H 10500 700 60  0000 C CNN
 	1    10500 700 
 	0    -1   -1   0   
@@ -703,7 +703,7 @@ U 1 1 56A40AB3
 P 5800 3250
 F 0 "Y1" V 5800 3400 50  0000 C CNN
 F 1 "16MHz" H 5800 3100 50  0000 C CNN
-F 2 "Crystals:Crystal_HC49-U_Vertical" H 5800 3250 60  0001 C CNN
+F 2 "Crystals:HC-49V" H 5800 3250 60  0001 C CNN
 F 3 "" H 5800 3250 60  0000 C CNN
 	1    5800 3250
 	0    1    1    0   
@@ -846,7 +846,7 @@ U 1 1 56A90233
 P 6050 3800
 F 0 "P3" H 6050 3900 50  0000 C CNN
 F 1 "Standby" V 6150 3800 50  0000 C CNN
-F 2 "Socket_Strips:Socket_Strip_Straight_1x01" H 6050 3800 60  0001 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x01" H 6050 3800 60  0001 C CNN
 F 3 "" H 6050 3800 60  0000 C CNN
 	1    6050 3800
 	1    0    0    -1  
@@ -878,13 +878,8 @@ Wire Wire Line
 Wire Wire Line
 	7800 3050 8000 3050
 Wire Wire Line
-	8300 3250 8300 3500
-Wire Wire Line
-	7950 3400 7950 3050
+	7950 3050 7950 3700
 Connection ~ 7950 3050
-Wire Wire Line
-	8250 3400 8300 3400
-Connection ~ 8300 3400
 Wire Wire Line
 	9100 1550 9100 2050
 Wire Wire Line
@@ -1179,4 +1174,22 @@ Text Label 10600 1700 1    60   ~ 0
 Heater+
 Text Label 7050 4900 0    60   ~ 0
 Heater+
+$Comp
+L R R12
+U 1 1 56A90FE1
+P 8300 3450
+F 0 "R12" V 8380 3450 50  0000 C CNN
+F 1 "1kΩ" V 8300 3450 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 8230 3450 30  0001 C CNN
+F 3 "" H 8300 3450 30  0000 C CNN
+	1    8300 3450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8300 3300 8300 3250
+Wire Wire Line
+	8300 3600 8300 3950
+Wire Wire Line
+	8250 3700 8300 3700
+Connection ~ 8300 3700
 $EndSCHEMATC
