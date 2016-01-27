@@ -1,1 +1,5 @@
 .stl binary
+.sch binary
+.kicad_pdb binary
+.lib binary
+.pdf binary
