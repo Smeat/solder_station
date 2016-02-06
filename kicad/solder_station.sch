@@ -82,7 +82,7 @@ L R R1
 U 1 1 566AD19A
 P 5900 4350
 F 0 "R1" V 6000 4400 50  0000 C CNN
-F 1 "100kΩ" V 5800 4350 50  0000 C CNN
+F 1 "10kΩ" V 5800 4350 50  0000 C CNN
 F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 5830 4350 30  0001 C CNN
 F 3 "" H 5900 4350 30  0000 C CNN
 	1    5900 4350
@@ -165,7 +165,6 @@ F 3 "" H 2900 2400 60  0000 C CNN
 	1    2900 2400
 	1    0    0    -1  
 $EndComp
-NoConn ~ 4950 2850
 $Comp
 L Q_NMOS_DGS Q1
 U 1 1 566AF6D0
@@ -175,7 +174,7 @@ F 1 "2N7000" H 8700 3000 50  0000 R CNN
 F 2 "TO_SOT_Packages_THT:TO-92_Inline_Wide" H 8400 3150 29  0001 C CNN
 F 3 "" H 8200 3050 60  0000 C CNN
 	1    8200 3050
-	1    0    0    -1  
+	1    0    0    1   
 $EndComp
 $Comp
 L R R2
@@ -222,7 +221,7 @@ F 3 "" H 9100 1550 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Q_PMOS_SGD Q2
+L Q_PMOS_GDS Q2
 U 1 1 566B0176
 P 9000 2250
 F 0 "Q2" H 9300 2300 50  0000 R CNN
@@ -230,7 +229,7 @@ F 1 "IRF4905" H 9500 2200 50  0000 R CNN
 F 2 "TO_SOT_Packages_THT:TO-220_Neutral123_Vertical" H 9200 2350 29  0001 C CNN
 F 3 "" H 9000 2250 60  0000 C CNN
 	1    9000 2250
-	1    0    0    -1  
+	1    0    0    1   
 $EndComp
 $Comp
 L R R5
@@ -259,7 +258,7 @@ L R R6
 U 1 1 566B006C
 P 9700 5650
 F 0 "R6" V 9780 5650 50  0000 C CNN
-F 1 "100Ω" V 9700 5650 50  0000 C CNN
+F 1 "1kΩ" V 9700 5650 50  0000 C CNN
 F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 9630 5650 30  0001 C CNN
 F 3 "" H 9700 5650 30  0000 C CNN
 	1    9700 5650
@@ -270,7 +269,7 @@ L R R7
 U 1 1 566B0289
 P 9700 5200
 F 0 "R7" V 9780 5200 50  0000 C CNN
-F 1 "50kΩ" V 9700 5200 50  0000 C CNN
+F 1 "100kΩ" V 9700 5200 50  0000 C CNN
 F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 9630 5200 30  0001 C CNN
 F 3 "" H 9700 5200 30  0000 C CNN
 	1    9700 5200
@@ -489,8 +488,6 @@ F 3 "" H 1650 1300 60  0000 C CNN
 	1    1650 1300
 	1    0    0    -1  
 $EndComp
-Text Notes 9250 6100 0    39   ~ 0
-Wert muss noch ermittelt werden
 Text GLabel 2800 2750 1    60   Output ~ 0
 AVcc
 Text GLabel 9050 4450 1    60   Input ~ 0
@@ -522,42 +519,42 @@ AVcc
 $Comp
 L CONN_01X02 P2
 U 1 1 566DD427
-P 7600 1200
-F 0 "P2" H 7600 1350 50  0000 C CNN
-F 1 "CONN_01X02" V 7700 1200 50  0000 C CNN
-F 2 "Terminal_Blocks:TerminalBlock_Pheonix_PT-3.5mm_2pol" H 7600 1200 60  0001 C CNN
-F 3 "" H 7600 1200 60  0000 C CNN
-	1    7600 1200
+P 7600 1350
+F 0 "P2" H 7600 1500 50  0000 C CNN
+F 1 "CONN_01X02" V 7700 1350 50  0000 C CNN
+F 2 "Terminal_Blocks:TerminalBlock_Pheonix_PT-3.5mm_2pol" H 7600 1350 60  0001 C CNN
+F 3 "" H 7600 1350 60  0000 C CNN
+	1    7600 1350
 	0    1    1    0   
 $EndComp
 $Comp
 L +24V #PWR024
 U 1 1 566DD4CA
-P 7650 900
-F 0 "#PWR024" H 7650 750 50  0001 C CNN
-F 1 "+24V" H 7650 1040 50  0000 C CNN
-F 2 "" H 7650 900 60  0000 C CNN
-F 3 "" H 7650 900 60  0000 C CNN
-	1    7650 900 
+P 7850 800
+F 0 "#PWR024" H 7850 650 50  0001 C CNN
+F 1 "+24V" H 7850 940 50  0000 C CNN
+F 2 "" H 7850 800 60  0000 C CNN
+F 3 "" H 7850 800 60  0000 C CNN
+	1    7850 800 
 	1    0    0    -1  
 $EndComp
 $Comp
 L GND #PWR025
 U 1 1 566DD545
-P 7550 800
-F 0 "#PWR025" H 7550 550 50  0001 C CNN
-F 1 "GND" H 7550 650 50  0000 C CNN
-F 2 "" H 7550 800 60  0000 C CNN
-F 3 "" H 7550 800 60  0000 C CNN
-	1    7550 800 
+P 7300 750
+F 0 "#PWR025" H 7300 500 50  0001 C CNN
+F 1 "GND" H 7300 600 50  0000 C CNN
+F 2 "" H 7300 750 60  0000 C CNN
+F 3 "" H 7300 750 60  0000 C CNN
+	1    7300 750 
 	-1   0    0    1   
 $EndComp
 $Comp
-L LM358 U2
+L TL071 U2
 U 1 1 566D9405
 P 9150 5000
 F 0 "U2" H 9100 5200 60  0000 L CNN
-F 1 "AD8572" H 9100 4750 60  0000 L CNN
+F 1 "AD8551" H 9100 4750 60  0000 L CNN
 F 2 "Housings_SOIC:SOIC-8_3.9x4.9mm_Pitch1.27mm" H 9150 5000 60  0001 C CNN
 F 3 "" H 9150 5000 60  0000 C CNN
 	1    9150 5000
@@ -815,7 +812,7 @@ L R R10
 U 1 1 56A69819
 P 7450 4400
 F 0 "R10" V 7530 4400 50  0000 C CNN
-F 1 "1MΩ" V 7450 4400 50  0000 C CNN
+F 1 "300kΩ" V 7450 4400 50  0000 C CNN
 F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 7380 4400 30  0001 C CNN
 F 3 "" H 7450 4400 30  0000 C CNN
 	1    7450 4400
@@ -823,8 +820,6 @@ F 3 "" H 7450 4400 30  0000 C CNN
 $EndComp
 Text GLabel 7450 4000 1    60   Input ~ 0
 AVcc
-Text Notes 7500 5750 0    60   ~ 0
-Can also use a single Zener diode
 $Comp
 L R R11
 U 1 1 56A700C3
@@ -889,8 +884,6 @@ Wire Wire Line
 Wire Wire Line
 	8800 2250 8300 2250
 Wire Wire Line
-	8300 2100 8300 2850
-Wire Wire Line
 	8300 1800 9100 1800
 Connection ~ 9100 1800
 Connection ~ 8300 2250
@@ -948,10 +941,6 @@ Wire Wire Line
 Wire Wire Line
 	9050 5950 9700 5950
 Connection ~ 9050 5950
-Wire Wire Line
-	7550 800  7550 1000
-Wire Wire Line
-	7650 900  7650 1000
 Wire Wire Line
 	2900 1000 3250 1000
 Wire Wire Line
@@ -1042,7 +1031,7 @@ Wire Wire Line
 Wire Wire Line
 	6400 4450 6400 4600
 Wire Wire Line
-	4950 2950 5550 2950
+	4950 2850 5550 2850
 Wire Wire Line
 	4950 3150 5400 3150
 Wire Wire Line
@@ -1142,14 +1131,14 @@ Text Label 6700 5550 3    60   ~ 0
 DTR
 Text Label 6400 4600 1    60   ~ 0
 DTR
-Text Label 5550 2950 2    60   ~ 0
+Text Label 5550 2850 2    60   ~ 0
 Button_push
 Text Label 6650 1650 2    60   ~ 0
 Button_push
-Text Label 5400 3050 2    60   ~ 0
+Text Label 5400 2950 2    60   ~ 0
 Rotary_B
 Wire Wire Line
-	5400 3050 4950 3050
+	5400 2950 4950 2950
 Text Label 5400 3150 2    60   ~ 0
 Rotary_A
 Text Label 5100 1600 0    60   ~ 0
@@ -1177,19 +1166,49 @@ Heater+
 $Comp
 L R R12
 U 1 1 56A90FE1
-P 8300 3450
-F 0 "R12" V 8380 3450 50  0000 C CNN
-F 1 "1kΩ" V 8300 3450 50  0000 C CNN
-F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 8230 3450 30  0001 C CNN
-F 3 "" H 8300 3450 30  0000 C CNN
-	1    8300 3450
+P 8300 2600
+F 0 "R12" V 8400 2600 50  0000 C CNN
+F 1 "1kΩ" V 8300 2600 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 8230 2600 30  0001 C CNN
+F 3 "" H 8300 2600 30  0000 C CNN
+	1    8300 2600
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8300 3300 8300 3250
-Wire Wire Line
-	8300 3600 8300 3950
+	8300 3250 8300 3950
 Wire Wire Line
 	8250 3700 8300 3700
 Connection ~ 8300 3700
+Wire Wire Line
+	8300 2100 8300 2450
+Wire Wire Line
+	8300 2750 8300 2850
+NoConn ~ 4950 3050
+$Comp
+L CP C9
+U 1 1 56B3C013
+P 7600 800
+F 0 "C9" H 7625 900 50  0000 L CNN
+F 1 "CP" H 7625 700 50  0000 L CNN
+F 2 "Capacitors_ThroughHole:C_Radial_D5_L11_P2.5" H 7638 650 30  0001 C CNN
+F 3 "" H 7600 800 60  0000 C CNN
+	1    7600 800 
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7650 1150 7800 1150
+Wire Wire Line
+	7750 800  7850 800 
+Wire Wire Line
+	7450 800  7300 800 
+Wire Wire Line
+	7300 800  7300 750 
+Wire Wire Line
+	7400 800  7400 1150
+Wire Wire Line
+	7400 1150 7550 1150
+Connection ~ 7400 800 
+Wire Wire Line
+	7800 1150 7800 800 
+Connection ~ 7800 800 
 $EndSCHEMATC
