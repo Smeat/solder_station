@@ -1,3 +1,21 @@
+/**
+This file is part of SolderStation.
+
+SolderStation is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+SolderStation is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with SolderStation.  If not, see <http://www.gnu.org/licenses/>.
+**/
+
+
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -7,11 +25,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../lib/lcd/lcd.h"
 #include "../lib/Timer.h"
 
 #include "constants.h"
 #include "adc.h"
+#include "button.h"
+
+#ifdef LCD_SUPPORT
+#include "../lib/lcd/lcd.h"
+#endif
 
 #ifdef UART_DEBUG
 #include <uart.h>
@@ -43,6 +65,7 @@ volatile int8_t rotary_value;
 
 uint8_t current_menu = MENU_MAIN;
 uint8_t menu_pos = 0;
+uint8_t output_enabled = 0;
 
 void setPWM(int16_t val){
 	OCR1A = val;
@@ -64,7 +87,9 @@ int8_t read_rotary(){
 }
 
 void enableHeater(){
-	TCCR1A |= (1 << COM1A1);
+	if(output_enabled){
+		TCCR1A |= (1 << COM1A1);
+	}
 }
 
 void disableHeater(){
@@ -73,9 +98,17 @@ void disableHeater(){
 
 uint16_t getTemperature(){
 	disableHeater();
-	_delay_us(HEATER_WAIT_DELAY);
+	_delay_ms(HEATER_WAIT_DELAY);
 
-	uint16_t temperature = read_adc_avg(0, 4) * adc_temp_factor + adc_temp_constant;
+	uint16_t avg_adc = read_adc_avg(0, 5);
+	float voltage = avg_adc * (1.1 / 1023.0);
+	char s[8];
+	dtostrf( voltage, 6, 3, s );
+
+	uint16_t temperature = avg_adc * adc_temp_factor + adc_temp_constant;
+#ifdef UART_DEBUG_TEMP
+	printf("Temp: %u Voltage %s\n", avg_adc, s);
+#endif
 
 	enableHeater();
 
@@ -139,22 +172,7 @@ void precalcPID(){
 	Kd_time = Kd / updateTime;
 }
 
-uint8_t getKeyPressed() {
-	static uint8_t last_status = 0;
-	uint8_t temp1, temp2;
-
-	temp1 = ROTATE_C;
-	_delay_ms(5);
-	temp2 = ROTATE_C;
-
-	temp1 = temp1 & temp2; //
-
-	temp2 = (last_status < temp1); //use temp2 as return value
-
-	last_status = temp1;
-	return (temp2);
-}
-
+#ifdef LCD_SUPPORT
 void init_lcd(){
 	lcd_init(LCD_DISP_ON);
 	lcd_clrscr();
@@ -167,6 +185,7 @@ void init_lcd(){
 	lcd_add_custom_character_P(CHARACTER_PLAY, char_play);
 	lcd_add_custom_character_P(CHARACTER_PAUSE, char_pause);
 }
+#endif
 
 void init_timer(){
 	//1ms timer2 TODO: alternative use main loop and millis()?
@@ -178,13 +197,16 @@ void init_timer(){
 	// PWM
 	DDRB |= (1 << PB1); //enable output
 	TCCR1A = (1<<WGM10) | (1<<WGM11) | (1<<COM1A1); // 10bit-Counter, FastPWM
-	TCCR1B =  (1 << CS10) | (1 << CS11) | (1 << WGM12); // 64 prescaler -> 244hz
+	TCCR1B =  (1 << CS10) | (1 << CS12) | (1 << WGM12); // 64 prescaler -> 244hz
 
 	init_timer0();
+
+	disableHeater();
 
 	sei();
 }
 
+#ifdef LCD_SUPPORT
 void updateDisplay(){
 	lcd_clrscr();
 	lcd_home();
@@ -198,11 +220,10 @@ void updateDisplay(){
 		sprintf(menu_string, "%c%-3u/%-3u%cC \n"
 							 "%c\n"
 							  "PWM: %-4u\n",
-							  CHARACTER_THERMOMETER, lastTemp, targetTemp, CHARACTER_DEGREE, isStandby() ? CHARACTER_PAUSE : CHARACTER_PLAY, OCR1A);
+							  CHARACTER_THERMOMETER, lastTemp, targetTemp, CHARACTER_DEGREE, output_enabled ? CHARACTER_PLAY : CHARACTER_PAUSE, output_enabled ? OCR1A : 0);
 	}
 	else if (current_menu == MENU_OPTIONS){
 		lcd_command(LCD_DISP_ON_CURSOR);
-
 
 		char kp[8], ki[8], kd[8];
 		dtostrf( Kp, 6, 1, kp );
@@ -214,8 +235,6 @@ void updateDisplay(){
 							 "%c%-3u/%-3u%cC\n"
 							 "%c:%-3s %c:%-3s \n%c:%-3s\n",  CHARACTER_THERMOMETER, lastTemp, targetTemp, CHARACTER_DEGREE,
 							 	 	 	 	 	   CHARACTER_KP, kp, CHARACTER_KI, ki, CHARACTER_KD, kd);
-
-
 
 		if(menu_pos == 0){ //TODO: make me better. array?
 			cursor_end_pos[0] = 7;
@@ -237,6 +256,7 @@ void updateDisplay(){
 	lcd_puts(menu_string);
 	lcd_gotoxy(cursor_end_pos[0],cursor_end_pos[1]);
 }
+#endif
 
 void init_io(){
 	 ROTATE_DDR &=~ (1 << ROTATE_A_PIN);
@@ -261,6 +281,7 @@ void init_uart(){
 #endif
 
 ISR(TIMER2_COMPA_vect){
+	static uint8_t ms = 0;
 	uint8_t val, diff;
 	static uint8_t last = 0;
 	val = 0;
@@ -272,6 +293,10 @@ ISR(TIMER2_COMPA_vect){
 	if( diff & 1 ){ //bit 0 changed -> rotated
 		last = val;
 		rotary_value += (diff & 0b0010) - 1; //bit 1 = direction
+	}
+	if(++ms >=10){
+		update_key();
+		ms = 0;
 	}
 }
 
@@ -304,6 +329,13 @@ void loadEEPROM(){
 void processInput(){
 	int8_t button = read_rotary();
 
+	uint8_t key_pressed_long =  get_key_long(1 << KEY0);
+	uint8_t key_pressed_short = get_key_short(1 << KEY0);
+
+#ifdef UART_DEBUG_INPUT
+	printf("Buttons: A %u B %u long %u short %u\n", ROTATE_A, ROTATE_B, key_pressed_long, key_pressed_short);
+#endif
+
 	if(current_menu == MENU_CONNECTED && BUTTON_CONNECTED){
 		current_menu = MENU_MAIN;
 	}
@@ -314,8 +346,18 @@ void processInput(){
 
 	else if(current_menu == MENU_MAIN){ //do this if we are in main menu
 		targetTemp += button;
-		if(getKeyPressed()){
+		if(key_pressed_long){
 			current_menu = MENU_OPTIONS; //button pressed -> switch to options menu
+		}
+		else if(key_pressed_short){
+			output_enabled = !output_enabled;
+			printf("Toggle heater\n");
+			if(output_enabled){
+				enableHeater();
+			}
+			else {
+				disableHeater();
+			}
 		}
 	}
 	else if(current_menu == MENU_OPTIONS){ //do this if we are in options menu
@@ -330,12 +372,15 @@ void processInput(){
 			Kd += 0.1 * button;
 		}
 
-		if(getKeyPressed()){ //button pressed -> go to next item
+		if(key_pressed_short){ //button pressed -> go to next item
 			if(++menu_pos == MENU_OPTIONS_LAST_ITEM){ //last item -> exit and save to eeprom
-				current_menu = MENU_MAIN;
 				menu_pos = 0;
-				saveEEPROM();
 			}
+		}
+		else if(key_pressed_long){
+			current_menu = MENU_MAIN;
+			menu_pos = 0;
+			saveEEPROM();
 		}
 	}
 }
@@ -344,26 +389,37 @@ int main(){
 #ifdef UART_DEBUG
 	init_uart();
 #endif
+#ifdef LCD_SUPPORT
 	init_lcd();
+#endif
 	init_timer();
 	init_adc();
 	init_io();
 
 	precalcPID();
-	targetTemp = 230;
+	targetTemp = standByTemp;
+
+	//saveEEPROM();
 
 	loadEEPROM();
 
-	uint8_t lastUpdate = 0;
+	uint32_t lastUpdate = 0;
+	uint32_t lastDisplayUpdate = 0;
+
+	uint16_t updateInterval = (uint16_t)  (updateTime * 1000.0);
 
 	while(1){
-		if((millis() - lastUpdate) > (updateTime * 1000)){
+		if( (millis() - lastUpdate) > updateInterval){
 			lastUpdate = millis();
 			processInput();
-			updateDisplay();
 			updateOuput();
 		}
+#ifdef LCD_SUPPORT
+		if( (millis() - lastDisplayUpdate) > 350){
+			lastDisplayUpdate = millis();
+			updateDisplay();
+		}
 
-
+#endif
 	}
 }
