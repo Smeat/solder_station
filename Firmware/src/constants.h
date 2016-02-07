@@ -24,19 +24,25 @@
 #define DEFAULT_KI 1.03
 #define DEFAULT_KD 10
 
+#define DEFAULT_FACTOR 0.46f
+#define DEFAULT_CONSTANT 23
+
 #define EEPROM_DEF 0xFF
 
 #define MENU_MAIN 0
-#define MENU_OPTIONS 1
-#define MENU_CONNECTED 2
+#define MENU_CONNECTED 1
+#define MENU_OPTIONS_SELECT 2
+#define MENU_OPTIONS_PID 3
+#define MENU_OPTIONS_CALIBRATE 4
 
-#define MENU_OPTIONS_LAST_ITEM 3
+
+
+#define MENU_OPTIONS_PID_LAST_ITEM 3
+#define MENU_OPTIONS_CALIBRATE_LAST_ITEM 2
 
 #define MAX_PWM 1023
 
 const float updateTime = 0.2f;
-const float adc_temp_factor = 0.46f;
-const int16_t adc_temp_constant = 23;
 
 // Buttons
 #define ROTATE_PIN PINB
@@ -61,8 +67,8 @@ const int16_t adc_temp_constant = 23;
 #define UART_DEBUG1
 #ifdef UART_DEBUG
 //#define UART_DEBUG_PID
-#define UART_DEBUG_INPUT1
-#define UART_DEBUG_TEMP
+#define UART_DEBUG_INPUT
+#define UART_DEBUG_TEMP1
 #endif
 
 

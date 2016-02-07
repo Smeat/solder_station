@@ -59,6 +59,12 @@ float ee_Kp EEMEM = DEFAULT_KP;
 float ee_Ki EEMEM = DEFAULT_KI;
 float ee_Kd EEMEM = DEFAULT_KD;
 
+float adc_temp_factor = DEFAULT_FACTOR;
+int16_t adc_temp_constant = DEFAULT_CONSTANT;
+
+float ee_adc_temp_factor EEMEM = DEFAULT_FACTOR;
+int16_t ee_adc_temp_constant EEMEM = DEFAULT_CONSTANT;
+
 float Ki_time = 0;
 float Kd_time = 0;
 volatile int8_t rotary_value;
@@ -222,7 +228,7 @@ void updateDisplay(){
 							  "PWM: %-4u\n",
 							  CHARACTER_THERMOMETER, lastTemp, targetTemp, CHARACTER_DEGREE, output_enabled ? CHARACTER_PLAY : CHARACTER_PAUSE, output_enabled ? OCR1A : 0);
 	}
-	else if (current_menu == MENU_OPTIONS){
+	else if (current_menu == MENU_OPTIONS_PID){
 		lcd_command(LCD_DISP_ON_CURSOR);
 
 		char kp[8], ki[8], kd[8];
@@ -231,7 +237,7 @@ void updateDisplay(){
 		dtostrf( Kd, 6, 1, kd );
 
 
-		sprintf(menu_string, "Options Menu\n"
+		sprintf(menu_string, "PID Setting\n"
 							 "%c%-3u/%-3u%cC\n"
 							 "%c:%-3s %c:%-3s \n%c:%-3s\n",  CHARACTER_THERMOMETER, lastTemp, targetTemp, CHARACTER_DEGREE,
 							 	 	 	 	 	   CHARACTER_KP, kp, CHARACTER_KI, ki, CHARACTER_KD, kd);
@@ -251,6 +257,30 @@ void updateDisplay(){
 	}
 	else if (current_menu == MENU_CONNECTED){
 		sprintf(menu_string,"Error!\nSolder iron\nnot connected!!\nPlease connect!\n");
+	}
+	else if (current_menu == MENU_OPTIONS_SELECT){
+		sprintf(menu_string, "Select Menu:\n"
+				"%s", menu_pos ? "Calibration" : "PID");
+	}
+	else if (current_menu == MENU_OPTIONS_CALIBRATE){
+		lcd_command(LCD_DISP_ON_CURSOR);
+		char factor[8];
+		dtostrf( adc_temp_factor, 6, 3, factor );
+
+		sprintf(menu_string, "Calibration\n"
+							 "%c%-3u/%-3u%cC\n"
+							 "Factor: %s\n"
+							 "Constant: %i",
+							 CHARACTER_THERMOMETER, lastTemp, targetTemp, CHARACTER_DEGREE,
+							 factor, adc_temp_constant);
+		if(menu_pos == 0){
+			cursor_end_pos[0] = 13;
+			cursor_end_pos[1] = 2;
+		}
+		else if(menu_pos == 1){
+			cursor_end_pos[0] = 11;
+			cursor_end_pos[1] = 3;
+		}
 	}
 
 	lcd_puts(menu_string);
@@ -305,6 +335,8 @@ void saveEEPROM(){
 	eeprom_update_float(&ee_Kp, Kp);
 	eeprom_update_float(&ee_Ki, Ki);
 	eeprom_update_float(&ee_Kd, Kd);
+	eeprom_update_float(&ee_adc_temp_factor, adc_temp_factor);
+	eeprom_update_word((uint16_t*)&ee_adc_temp_constant, (uint16_t)adc_temp_constant);
 	sei();
 
 	precalcPID();
@@ -313,7 +345,7 @@ void saveEEPROM(){
 void loadEEPROM(){
 	cli();
 	if((Kp = eeprom_read_float(&ee_Kp)) == EEPROM_DEF){
-		Kp = DEFAULT_KP;
+		Kp = DEFAULT_KP; //FIXME: this is not working
 	}
 	if((Ki = eeprom_read_float(&ee_Ki)) == EEPROM_DEF){
 		Ki = DEFAULT_KI;
@@ -321,13 +353,19 @@ void loadEEPROM(){
 	if((Kd = eeprom_read_float(&ee_Kd)) == EEPROM_DEF){
 		Kd = DEFAULT_KD;
 	}
+	if((adc_temp_factor = eeprom_read_float(&ee_adc_temp_factor)) == EEPROM_DEF){
+		adc_temp_factor = DEFAULT_FACTOR;
+	}
+	if((adc_temp_constant = eeprom_read_word((uint16_t*)&ee_adc_temp_constant)) == EEPROM_DEF){
+		adc_temp_constant = DEFAULT_CONSTANT;
+	}
 	sei();
 
 	precalcPID();
 }
 
 void processInput(){
-	int8_t button = read_rotary();
+	int8_t button_rotation = read_rotary();
 
 	uint8_t key_pressed_long =  get_key_long(1 << KEY0);
 	uint8_t key_pressed_short = get_key_short(1 << KEY0);
@@ -345,9 +383,9 @@ void processInput(){
 	}
 
 	else if(current_menu == MENU_MAIN){ //do this if we are in main menu
-		targetTemp += button;
+		targetTemp += button_rotation;
 		if(key_pressed_long){
-			current_menu = MENU_OPTIONS; //button pressed -> switch to options menu
+			current_menu = MENU_OPTIONS_SELECT; //button pressed -> switch to options menu
 		}
 		else if(key_pressed_short){
 			output_enabled = !output_enabled;
@@ -360,20 +398,20 @@ void processInput(){
 			}
 		}
 	}
-	else if(current_menu == MENU_OPTIONS){ //do this if we are in options menu
+	else if(current_menu == MENU_OPTIONS_PID){ //do this if we are in options menu
 
 		if(menu_pos == 0){
-			Kp += 0.1 * button;
+			Kp += 0.1 * button_rotation;
 		}
 		if(menu_pos == 1){
-			Ki += 0.01 * button;
+			Ki += 0.01 * button_rotation;
 		}
 		if(menu_pos == 2){
-			Kd += 0.1 * button;
+			Kd += 0.1 * button_rotation;
 		}
 
 		if(key_pressed_short){ //button pressed -> go to next item
-			if(++menu_pos == MENU_OPTIONS_LAST_ITEM){ //last item -> exit and save to eeprom
+			if(++menu_pos == MENU_OPTIONS_PID_LAST_ITEM){ //last item -> exit and save to eeprom
 				menu_pos = 0;
 			}
 		}
@@ -382,6 +420,45 @@ void processInput(){
 			menu_pos = 0;
 			saveEEPROM();
 		}
+	}
+	else if(current_menu == MENU_OPTIONS_SELECT){
+		menu_pos += button_rotation;//key pressed short -> toggle menu
+		menu_pos = menu_pos % 2;
+#ifdef UART_DEBUG_INPUT
+		printf("Current menu pos: %u\n", menu_pos);
+#endif
+
+		if(key_pressed_short){ //go to selected menu
+			if(menu_pos == 0) current_menu = MENU_OPTIONS_PID;
+			if(menu_pos == 1) current_menu = MENU_OPTIONS_CALIBRATE;
+
+			menu_pos = 0;
+		}
+		else if(key_pressed_long){
+			current_menu = MENU_MAIN;
+		}
+	}
+	else if(current_menu == MENU_OPTIONS_CALIBRATE){ //temp calibration menu
+
+		if(menu_pos == 0){
+			adc_temp_factor += 0.001 * button_rotation;
+		}
+		else if(menu_pos == 1){
+			adc_temp_constant += button_rotation;
+		}
+
+
+		if(key_pressed_short){ //button pressed -> go to next item
+			if(++menu_pos == MENU_OPTIONS_CALIBRATE_LAST_ITEM){ //last item -> exit and save to eeprom
+				menu_pos = 0;
+			}
+		}
+		else if(key_pressed_long){
+			current_menu = MENU_MAIN;
+			menu_pos = 0;
+		}
+
+
 	}
 }
 
@@ -415,7 +492,7 @@ int main(){
 			updateOuput();
 		}
 #ifdef LCD_SUPPORT
-		if( (millis() - lastDisplayUpdate) > 350){
+		if( (millis() - lastDisplayUpdate) > 200){
 			lastDisplayUpdate = millis();
 			updateDisplay();
 		}
