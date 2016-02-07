@@ -1,8 +1,3 @@
-
-box_length = 100;
-box_width = 50;
-box_height = 20;
-
 //vitamin config
 display_pcb_height = 60;
 display_pcb_width = 100;
@@ -33,7 +28,7 @@ layer_height = 0.2;
   main_box_font_layers=3;
   
   // - Length  
-  main_box_length = 80;       
+  main_box_length = 100;       
 // - Width
   main_box_width = 140;                     
 // - Height  
@@ -48,5 +43,16 @@ layer_height = 0.2;
   m = 0.5;
   
   main_box_top_slots = 5;
+  
+  main_box_button_r = 6.8/2;
+  
+  
+power_pcb_width = 106;
+power_pcb_height = 57;
+
+power_pcb_hole_dist = 4;
+
+main_pcb_pos_y = 10;
+main_pcb_pos_x = 25;
 
 include <active_userconfig.scad>

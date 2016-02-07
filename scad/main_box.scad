@@ -7,6 +7,9 @@
 
 use <vitamins/hd44780.scad>
 use <vitamins/gx16.scad>
+use <vitamins/main_pcb.scad>
+use <vitamins/power_pcb.scad>
+use <knob.scad>
 
 
 include <conf/config.scad>
@@ -26,7 +29,7 @@ Text=1;// [0:No, 1:Yes]
   
 /* [Hidden] */
 // - Shell color  
-  Color1 = [1,0.2,0];       
+  Color1 = "White";       
 // - Panels color    
   Color2 = "Black";    
 
@@ -201,7 +204,7 @@ module box(){
                 //plug
                 rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/10,-5]) cylinder(r=8 + m, h=5);
                 //button
-                rotate([0,-90,0]) translate([(main_box_height)/1.5,(main_box_width)/8,-5]) cylinder(r=3 + m, h=5);
+                rotate([0,-90,0]) translate([(main_box_height)/1.5,(main_box_width)/8,-5]) cylinder(r=main_box_button_r + m, h=5);
             }
            }
        }
@@ -222,7 +225,10 @@ module box(){
     if(BShell==1)
     // Bottom shell
     color(Color1){ 
-    Shell();
+        difference(){    
+            Shell();
+            translate([10,15,0]) power_pcb_holes();
+        }
     }
 
 
@@ -231,20 +237,35 @@ module box(){
     color( Color1,1){
         translate([0,main_box_width,main_box_height+0.2]){
             rotate([0,180,180]){
-                    Shell(1);
+                    difference(){
+                        Shell(1);
+                        translate([main_pcb_pos_y,main_pcb_pos_x,0]) main_pcb_holes();
                     }
+                }
             }
     }
 }
 
 module box_assembly(){
     box();
-    rotate([0,0,180]){
-        translate([-main_box_length-m/2,-main_box_width,0]){ 
-                rotate([0,-90,0]) translate([(main_box_height-display_pcb_height)/1.93,(main_box_width-display_pcb_width)/1.215,-display_depth - 1])display(); //TODO: fix position
-                color("Silver") rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/10,-10]) gx16();
-                color("White") rotate([0,-90,0]) translate([(main_box_height)/1.5,(main_box_width)/8,-5]) cylinder(r=5 + m, h=10, $fn=32);
+    if(FPanel == 1){
+        rotate([0,0,180]){
+            translate([-main_box_length-m/2,-main_box_width,0]){ 
+                    rotate([0,-90,0]) translate([(main_box_height-display_pcb_height)/1.93,(main_box_width-display_pcb_width)/1.215,-display_depth/1.5 ])display(); //TODO: fix position
+                    color("Silver") rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/10,-10]) gx16();
+                    color(Color1) rotate([0,-90,0]) translate([(main_box_height)/1.5,(main_box_width)/8,-5]) knob();
+            }
         }
+    }
+    if(TShell == 1){
+       translate([0,main_box_width,main_box_height+0.2]){
+            rotate([0,180,180]){
+                translate([main_pcb_pos_y,main_pcb_pos_x,8]) main_pcb();
+            }
+        }
+    }
+    if(BShell == 1){
+        translate([10,15,6]) power_pcb();
     }
     
     
