@@ -1,0 +1,15 @@
+digraph G{
+	
+	MainMenu -> MainMenu [label="Short"];
+	MainMenu -> OptionsSelect [label="Long"];
+	OptionsSelect -> MainMenu [label="Long"];
+	
+	OptionsSelect -> PIDMenu  [label="Short"];
+	OptionsSelect -> CalibrationMenu  [label="Short"];
+	
+	PIDMenu -> MainMenu [label="Long"];
+	CalibrationMenu -> MainMenu [label="Long"];
+	
+	PIDMenu -> PIDMenu [label="Short"];
+	CalibrationMenu -> CalibrationMenu [label="Short"];
+}
