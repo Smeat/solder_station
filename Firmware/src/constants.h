@@ -20,20 +20,27 @@
 
 #define HEATER_WAIT_DELAY 5
 
-#define DEFAULT_KP 20
-#define DEFAULT_KI 1.03
-#define DEFAULT_KD 10
+#define DEFAULT_KP 10
+#define DEFAULT_KI 1.2
+#define DEFAULT_KD 9
 
-#define DEFAULT_FACTOR 0.46f
-#define DEFAULT_CONSTANT 23
+#define DEFAULT_FACTOR 0.48f
+#define DEFAULT_CONSTANT 19
 
 #define EEPROM_DEF 0xFF
 
 #define MENU_MAIN 0
 #define MENU_CONNECTED 1
 #define MENU_OPTIONS_SELECT 2
+
 #define MENU_OPTIONS_PID 3
 #define MENU_OPTIONS_CALIBRATE 4
+#define MENU_OPTIONS_RESET 5
+#define MENU_OPTIONS_TEMP 6
+
+#define NUM_MENU_OPTIONS 4
+
+const char* option_menus[] = {"PID", "Calibration", "Temperatures", "Reset default"};
 
 
 

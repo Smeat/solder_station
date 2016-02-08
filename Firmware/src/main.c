@@ -48,8 +48,13 @@ along with SolderStation.  If not, see <http://www.gnu.org/licenses/>.
 #define BUTTON_CONNECTED ((BUTTON_CONNECTED_PIN_REGISTER & (1 << BUTTON_CONNECTED_PIN)) == 0)
 
 uint16_t targetTemp = 0;
+uint16_t defaultTemp = 250;
 uint16_t standByTemp = 180;
 uint16_t lastTemp = 0;
+
+
+uint16_t EEMEM ee_standByTemp = 180;
+uint16_t EEMEM ee_defaultTemp = 250;
 
 float Kp = DEFAULT_KP;
 float Ki = DEFAULT_KI;
@@ -136,6 +141,10 @@ uint16_t calculatePID(uint16_t target, uint16_t is){
 		iterm += (Ki_time * error);
 	}
 
+	if(error > abs(20)){ //set I to 0 if error is too big
+		iterm = 0;
+	}
+
 	float output = pterm + iterm + dterm;
 
 	if(output > MAX_PWM) output = MAX_PWM;
@@ -171,6 +180,10 @@ uint8_t isStandby(){
 void updateOuput(){
 	uint16_t output = calculatePID((isStandby() ? standByTemp : targetTemp), getTemperature());
 	setPWM(output);
+
+	if(lastTemp > 400){ //TODO: make variable
+		disableHeater();
+	}
 }
 
 void precalcPID(){
@@ -260,7 +273,7 @@ void updateDisplay(){
 	}
 	else if (current_menu == MENU_OPTIONS_SELECT){
 		sprintf(menu_string, "Select Menu:\n"
-				"%s", menu_pos ? "Calibration" : "PID");
+				"%s", option_menus[menu_pos]);
 	}
 	else if (current_menu == MENU_OPTIONS_CALIBRATE){
 		lcd_command(LCD_DISP_ON_CURSOR);
@@ -280,6 +293,26 @@ void updateDisplay(){
 		else if(menu_pos == 1){
 			cursor_end_pos[0] = 11;
 			cursor_end_pos[1] = 3;
+		}
+	}
+	else if(current_menu == MENU_OPTIONS_RESET){
+		sprintf(menu_string, "Reset defaults\n"
+							 "Are you sure?\n"
+							 "Press long to abort\n"
+							 "%s  %s  %s", (menu_pos) == 1 ? "2" : "", (menu_pos) == 2 ? "1" : "", (menu_pos) == 3 ? "0" : "");
+	}
+	else if(current_menu == MENU_OPTIONS_TEMP){
+		lcd_command(LCD_DISP_ON_CURSOR);
+		sprintf(menu_string,"Set temperatures\n"
+							"StartTemp: %-3u%cC\n"
+							"Standby: %-3u%cC", defaultTemp, CHARACTER_DEGREE, standByTemp, CHARACTER_DEGREE);
+		if(menu_pos == 0){
+			cursor_end_pos[0] =  13;
+			cursor_end_pos[1] = 1;
+		}
+		if(menu_pos == 1){
+			cursor_end_pos[0] =  11;
+			cursor_end_pos[1] = 2;
 		}
 	}
 
@@ -330,6 +363,21 @@ ISR(TIMER2_COMPA_vect){
 	}
 }
 
+void saveEEPROMDefault(){
+	cli();
+	eeprom_update_float(&ee_Kp, DEFAULT_KP);
+	eeprom_update_float(&ee_Ki, DEFAULT_KI);
+	eeprom_update_float(&ee_Kd, DEFAULT_KD);
+	eeprom_update_float(&ee_adc_temp_factor, DEFAULT_FACTOR);
+	eeprom_update_word((uint16_t*)&ee_adc_temp_constant, (uint16_t)DEFAULT_CONSTANT);
+	eeprom_update_word(&ee_standByTemp, 180);
+	eeprom_update_word(&ee_defaultTemp, 250);
+	sei();
+
+	precalcPID();
+}
+
+
 void saveEEPROM(){
 	cli();
 	eeprom_update_float(&ee_Kp, Kp);
@@ -337,9 +385,9 @@ void saveEEPROM(){
 	eeprom_update_float(&ee_Kd, Kd);
 	eeprom_update_float(&ee_adc_temp_factor, adc_temp_factor);
 	eeprom_update_word((uint16_t*)&ee_adc_temp_constant, (uint16_t)adc_temp_constant);
+	eeprom_update_word(&ee_standByTemp, standByTemp);
+	eeprom_update_word(&ee_defaultTemp, defaultTemp);
 	sei();
-
-	precalcPID();
 }
 
 void loadEEPROM(){
@@ -358,6 +406,12 @@ void loadEEPROM(){
 	}
 	if((adc_temp_constant = eeprom_read_word((uint16_t*)&ee_adc_temp_constant)) == EEPROM_DEF){
 		adc_temp_constant = DEFAULT_CONSTANT;
+	}
+	if((defaultTemp = eeprom_read_word(&ee_defaultTemp)) == EEPROM_DEF){
+		defaultTemp = 250;
+	}
+	if((standByTemp = eeprom_read_word(&ee_standByTemp)) == EEPROM_DEF){
+		standByTemp = 180;
 	}
 	sei();
 
@@ -405,9 +459,11 @@ void processInput(){
 		}
 		if(menu_pos == 1){
 			Ki += 0.01 * button_rotation;
+			precalcPID();
 		}
 		if(menu_pos == 2){
 			Kd += 0.1 * button_rotation;
+			precalcPID();
 		}
 
 		if(key_pressed_short){ //button pressed -> go to next item
@@ -423,7 +479,7 @@ void processInput(){
 	}
 	else if(current_menu == MENU_OPTIONS_SELECT){
 		menu_pos += button_rotation;//key pressed short -> toggle menu
-		menu_pos = menu_pos % 2;
+		menu_pos = menu_pos % NUM_MENU_OPTIONS; //TODO: allow reverse
 #ifdef UART_DEBUG_INPUT
 		printf("Current menu pos: %u\n", menu_pos);
 #endif
@@ -431,11 +487,14 @@ void processInput(){
 		if(key_pressed_short){ //go to selected menu
 			if(menu_pos == 0) current_menu = MENU_OPTIONS_PID;
 			if(menu_pos == 1) current_menu = MENU_OPTIONS_CALIBRATE;
+			if(menu_pos == 2) current_menu = MENU_OPTIONS_TEMP;
+			if(menu_pos == 3) current_menu = MENU_OPTIONS_RESET;
 
 			menu_pos = 0;
 		}
 		else if(key_pressed_long){
 			current_menu = MENU_MAIN;
+			menu_pos = 0;
 		}
 	}
 	else if(current_menu == MENU_OPTIONS_CALIBRATE){ //temp calibration menu
@@ -456,9 +515,44 @@ void processInput(){
 		else if(key_pressed_long){
 			current_menu = MENU_MAIN;
 			menu_pos = 0;
+			saveEEPROM();
+		}
+	}
+	else if(current_menu == MENU_OPTIONS_RESET){
+
+		if(key_pressed_short){
+			if(++menu_pos >3){
+				menu_pos = 0;
+				saveEEPROMDefault();
+				loadEEPROM();
+				current_menu = MENU_MAIN;
+			}
+		}
+		else if(key_pressed_long){
+			current_menu = MENU_MAIN;
+			menu_pos = 0;
+		}
+	}
+	else if(current_menu == MENU_OPTIONS_TEMP){
+
+		if(menu_pos == 0){
+			defaultTemp += button_rotation;
 		}
 
+		if(menu_pos == 1){
+			standByTemp += button_rotation;
+		}
 
+		if(key_pressed_short){
+			if(++menu_pos >=2){
+				menu_pos = 0;
+			}
+		}
+		else if(key_pressed_long){
+			current_menu = MENU_MAIN;
+			menu_pos = 0;
+			saveEEPROM();
+		}
 	}
 }
 
@@ -473,12 +567,16 @@ int main(){
 	init_adc();
 	init_io();
 
-	precalcPID();
-	targetTemp = standByTemp;
+
+
 
 	//saveEEPROM();
 
 	loadEEPROM();
+
+	precalcPID();
+
+	targetTemp = defaultTemp;
 
 	uint32_t lastUpdate = 0;
 	uint32_t lastDisplayUpdate = 0;
