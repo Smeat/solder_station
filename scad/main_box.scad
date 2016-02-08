@@ -200,9 +200,15 @@ module box(){
             difference(){
                 Panels();
                 //display
-                rotate([0,-90,0]) translate([(main_box_height-display_height)/2,(main_box_width-display_width)/1.25,-6]) cube([display_height + m, display_width + m, 5]);
+                rotate([0,-90,0]) translate([(main_box_height-display_height)/2,(main_box_width-display_width)/1.25,-6]){
+                    cube([display_height + m, display_width + m, 5]);
+                    translate([-10,0,2]) display_holes();
+                
+                 }
+                
+                
                 //plug
-                rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/10,-5]) cylinder(r=8 + m, h=5);
+                rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/8,-5]) cylinder(r=8 + m, h=5);
                 //button
                 rotate([0,-90,0]) translate([(main_box_height)/1.5,(main_box_width)/8,-5]) cylinder(r=main_box_button_r + m, h=5);
             }
@@ -252,7 +258,7 @@ module box_assembly(){
         rotate([0,0,180]){
             translate([-main_box_length-m/2,-main_box_width,0]){ 
                     rotate([0,-90,0]) translate([(main_box_height-display_pcb_height)/1.93,(main_box_width-display_pcb_width)/1.215,-display_depth/1.5 ])display(); //TODO: fix position
-                    color("Silver") rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/10,-10]) gx16();
+                    color("Silver") rotate([0,-90,0]) translate([(main_box_height)/4,(main_box_width)/8,-10]) gx16();
                     color(Color1) rotate([0,-90,0]) translate([(main_box_height)/1.5,(main_box_width)/8,-5]) knob();
             }
         }

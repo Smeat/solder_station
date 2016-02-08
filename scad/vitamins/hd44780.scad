@@ -3,9 +3,21 @@ include <../conf/config.scad>
 lcd_width = 76;
 lcd_height = 26;
 
+module display_holes(){
+    for(i = [0,1]){
+        for(j = [0,1]){
+                translate([display_pcb_height * j + 2 * (j ? -1 : 1),display_pcb_width * i + 2 * (i ? -1 : 1),-2]) cylinder(r=screw_radius, h=5, $fn=32);
+        }
+    }
+    
+}
+
 module display(){
     // pcb
-    color("Green")cube([display_pcb_height, display_pcb_width, 1]);
+    difference(){
+        color("Green")cube([display_pcb_height, display_pcb_width, 1]);
+        display_holes();
+    }
 
     //display
     translate([(display_pcb_height - display_height)/2, (display_pcb_width- display_width)/2, 1/2]){

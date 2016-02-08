@@ -1,6 +1,6 @@
 //vitamin config
 display_pcb_height = 60;
-display_pcb_width = 100;
+display_pcb_width = 98;
 
 display_height = 40;
 display_width = 97;
@@ -12,6 +12,8 @@ power_plug_width = 27;
 solder_plug_pins = 8;
 solder_plug_middle_pin = 1;
 
+screw_radius = 3.2/2;
+
 //for all
 
 layer_height = 0.2;
@@ -19,7 +21,7 @@ layer_height = 0.2;
 // main_box config
 
 // - Text you want
-  main_box_text = "Solder Station";           
+  main_box_text = "                 Solder Station";           
 // - Font size  
   main_box_font_size = 5;                 
 // - Font  
